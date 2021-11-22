@@ -14,6 +14,9 @@ service ShippingService {
     }
 }
 
+message GetRequest {
+}
+
 // 货轮承运的一批货物
 message Consignment {
     string  id = 1;                     // 货物编号
@@ -36,7 +39,4 @@ message Response {
     bool created = 1;                       // 托运成功
     Consignment consignment = 2;            // 新托运的货物
     repeated Consignment consignments = 3;  // 目前所有托运的货物
-}
-
-message GetRequest {
 }
