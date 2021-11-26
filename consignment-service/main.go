@@ -1,32 +1,77 @@
 package main
 
 import (
-	"google.golang.org/grpc"
+	"context"
+	"github.com/micro/go-micro/v2"
 	"log"
-	"net"
-	"shippy/consignment-service/proto"
 	pb "shippy/consignment-service/proto/consignment"
+	_ "github.com/micro/go-micro/v2/registry/etcd"
+	_ "github.com/micro/go-plugins/broker/nsq/v2"
 )
 
-const (
-	PORT = ":50051"
-)
+// IRepository 仓库接口
+type IRepository interface {
+	Create(consignment *pb.Consignment) (*pb.Consignment, error) 	// 存放新货物
+	GetAll() []*pb.Consignment										// 获取仓库中存放的所有货物
+}
 
-func main() {
-	listener, err := net.Listen("tcp", PORT)
+// Repository 存放多批货物，实现 IRepository 接口
+type Repository struct {
+	Consignments []*pb.Consignment
+}
+
+// Create 创建货物
+func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
+	repo.Consignments = append(repo.Consignments, consignment)
+	return consignment, nil
+}
+
+// GetAll 获取货物
+func (repo *Repository) GetAll() []*pb.Consignment {
+	return repo.Consignments
+}
+
+// Service 定义微服务
+type Service struct {
+	Repo Repository
+}
+
+// Service 实现 consignment.pb.go 中的 ShippingServiceServer 接口
+// 使 service 作为 gRPC 的服务端
+
+// CreateConsignment 托运新货物
+func (s *Service) CreateConsignment(ctx context.Context, req *pb.Consignment, resp *pb.Response)  error {
+	// 接受承运的货物
+	consignment, err := s.Repo.Create(req)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return err
 	}
 
-	log.Printf("listen on: %s/n", PORT)
+	resp = &pb.Response{Created: true, Consignment: consignment}
+	return nil
+}
 
-	server := grpc.NewServer()
-	repo := proto.Repository{}
+// GetConsignments 获取目前所有托运的货物
+func (s *Service) GetConsignments(ctx context.Context, req *pb.GetRequest, resp *pb.Response) error {
+	allConsignments := s.Repo.GetAll()
+	resp = &pb.Response{Consignments: allConsignments}
+	return nil
+}
 
-	// 向 rpc 服务器注册微服务，此时会把我们自己实现的微服务 service 与协议中的 ShippingServiceServer 绑定
-	pb.RegisterShippingServiceServer(server, &proto.Service{repo})
 
-	if err := server.Serve(listener); err != nil {
+func main() {
+	server := micro.NewService(
+		// 必须和 consignment.proto 中的 package 一致
+		micro.Name("go.micro.srv.consignment"),
+		micro.Version("latest"),
+	)
+
+	// 解析命令行参数
+	server.Init()
+	repo := Repository{}
+	pb.RegisterShippingServiceHandler(server.Server(), &Service{repo})
+
+	if err := server.Run(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

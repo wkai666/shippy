@@ -4,7 +4,10 @@ import (
     "context"
     "encoding/json"
     "errors"
-    "google.golang.org/grpc"
+    microclient "github.com/micro/go-micro/v2/client"
+    "github.com/micro/go-micro/v2/config/cmd"
+    _ "github.com/micro/go-micro/v2/registry/etcd"
+    _ "github.com/micro/go-plugins/broker/nsq/v2"
     "io/ioutil"
     "log"
     "os"
@@ -33,16 +36,12 @@ func parseFile(fileName string) (*pb.Consignment, error) {
 }
 
 func main()  {
-    // 连接到 rpc 服务器
-    conn, err := grpc.Dial(ADDRESS, grpc.WithInsecure())
-    if err != nil {
-        log.Fatalf("connent error: %v", err)
-    }
 
-    defer conn.Close()
+
+    cmd.Init()
 
     // 初始化 rpc 客户端
-    client := pb.NewShippingServiceClient(conn)
+    client := pb.NewShippingService("go.micro.srv.consignment", microclient.DefaultClient)
 
     // 命令行中获取货物信息
     infoFile := DEFAULT_INFO_FILE
