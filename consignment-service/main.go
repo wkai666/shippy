@@ -10,8 +10,8 @@ import (
 	vesselPb "shippy/vessel-service/proto/vessel"
 )
 
-//const DEFAULT_HOST = "172.21.0.1:27017"	// docker MongoDB
-const DEFAULT_HOST = "127.0.0.1:27017"		// 本地 MongoDB
+const DEFAULT_HOST = "172.21.0.1:27017"	// docker MongoDB
+// const DEFAULT_HOST = "127.0.0.1:27017"		// 本地 MongoDB
 
 func main() {
 

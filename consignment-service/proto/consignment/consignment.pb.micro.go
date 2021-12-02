@@ -44,6 +44,7 @@ func NewShippingServiceEndpoints() []*api.Endpoint {
 type ShippingService interface {
 	// 托运一批货物
 	CreateConsignment(ctx context.Context, in *Consignment, opts ...client.CallOption) (*Response, error)
+	// 查看托运货物的信息
 	GetConsignments(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*Response, error)
 }
 
@@ -84,6 +85,7 @@ func (c *shippingService) GetConsignments(ctx context.Context, in *GetRequest, o
 type ShippingServiceHandler interface {
 	// 托运一批货物
 	CreateConsignment(context.Context, *Consignment, *Response) error
+	// 查看托运货物的信息
 	GetConsignments(context.Context, *GetRequest, *Response) error
 }
 

@@ -9,11 +9,13 @@ service ShippingService {
     // 托运一批货物
     rpc CreateConsignment (Consignment) returns (Response) {
     }
-
+    // 查看托运货物的信息
     rpc GetConsignments (GetRequest) returns (Response) {
     }
 }
 
+// 查看货物信息的请求
+// 客户端要想从服务端请求数据，必须有请求格式，哪怕数据为空
 message GetRequest {
 }
 

@@ -20,6 +20,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 查看货物信息的请求
+// 客户端要想从服务端请求数据，必须有请求格式，哪怕数据为空
 type GetRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
