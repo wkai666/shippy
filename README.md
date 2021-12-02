@@ -48,9 +48,10 @@ gRPC 用于基于 HTTP 2.0 通信的二进制格式
 #### 踩坑总结：
 
 
-1. gRPC 客户端版本差异(v2.9.1)：
++ gRPC 客户端版本差异(v2.9.1)：
 
 ![](@attachment/Clipboard_2021-12-02-17-48-56.png)
+![](@attachment/Clipboard_2021-12-02-18-18-48.png)
 
 ```
 -- go-micro/v2/client/rpc_client.go
