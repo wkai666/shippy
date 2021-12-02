@@ -11,7 +11,7 @@ const (
     vesselCollection    = "vessels"
 )
 
-type Repository struct {
+type Repository interface {
     FindAvailable(*pb.Specification) (*pb.Vessel, error)
     Create(vessel *pb.Vessel) error
     Close()
@@ -47,4 +47,3 @@ func (repo *VesselRepository) Close()  {
 func (repo *VesselRepository) collection() *mgo.Collection {
     return repo.session.DB(dbName).C(vesselCollection)
 }
-

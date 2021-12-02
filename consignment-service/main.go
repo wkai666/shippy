@@ -10,7 +10,8 @@ import (
 	vesselPb "shippy/vessel-service/proto/vessel"
 )
 
-const DEFAULT_HOST = "localhost:27017"
+//const DEFAULT_HOST = "172.21.0.1:27017"	// docker MongoDB
+const DEFAULT_HOST = "127.0.0.1:27017"		// 本地 MongoDB
 
 func main() {
 
@@ -35,11 +36,12 @@ func main() {
 	// 解析命令行参数
 	server.Init()
 
-	//repo := Repository{}
+	// 作为 vessel-service 客户端
 	vClient := vesselPb.NewVesselService("go.micro.srv.vessel", server.Client())
 	pb.RegisterShippingServiceHandler(server.Server(), &handler{session, vClient})
 
 	if err := server.Run(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
 }

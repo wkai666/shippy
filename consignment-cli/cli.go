@@ -4,18 +4,17 @@ import (
     "context"
     "encoding/json"
     "errors"
-    microclient "github.com/micro/go-micro/v2/client"
+    microclient "github.com/micro/go-micro/v2/client/grpc"
     "github.com/micro/go-micro/v2/config/cmd"
     _ "github.com/micro/go-micro/v2/registry/etcd"
     _ "github.com/micro/go-plugins/broker/nsq/v2"
     "io/ioutil"
     "log"
-    "os"
     pb "shippy/consignment-service/proto/consignment"
 )
 
 const (
-    ADDRESS = "127.0.0.1:50051"
+    ADDRESS = "localhost:50051"
     DEFAULT_INFO_FILE = "consignment.json"
 )
 
@@ -37,28 +36,33 @@ func parseFile(fileName string) (*pb.Consignment, error) {
 
 func main()  {
 
-
     cmd.Init()
 
     // 初始化 rpc 客户端
-    client := pb.NewShippingService("go.micro.srv.consignment", microclient.DefaultClient)
+    client := pb.NewShippingService("go.micro.srv.consignment", microclient.NewClient())
 
-    // 命令行中获取货物信息
-    infoFile := DEFAULT_INFO_FILE
-    if len(os.Args) > 1 {
-        infoFile = os.Args[1]
+    container := &pb.Container{
+        //Id: "938388383",
+        CustomerId: "cust001",
+        Origin: "Manchester, United Kingdom",
+        UserId: "user001",
     }
 
-    // 解析货物信息
-    consignment, err := parseFile(infoFile)
-    if err != nil {
-        log.Fatalf("parse file info error: %v", err)
+    var containers []*pb.Container
+    containers = append(containers, container)
+
+    consignment := &pb.Consignment{
+        VesselId: "vessel001",
+        Weight: 550,
+        Containers: containers,
+        Description: "this is a consignment",
     }
 
     // 调用 rpc，将货物存储到自己的仓库中
     resp, err := client.CreateConsignment(context.Background(), consignment)
+
     if err != nil {
-        log.Fatalf("create consignment error: %v", err)
+        log.Fatalf("could not create consignment: %v", err)
     }
 
     // 货物是否托运成功
@@ -71,7 +75,7 @@ func main()  {
     }
 
     for _, c := range resp.Consignments {
-        log.Printf("%+v", c)
+        log.Printf("resp consignment is: %+v", c)
     }
-}
 
+}

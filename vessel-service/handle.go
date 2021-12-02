@@ -3,6 +3,7 @@ package main
 import (
     "context"
     "gopkg.in/mgo.v2"
+    "log"
     pb "shippy/vessel-service/proto/vessel"
 )
 
@@ -34,21 +35,8 @@ func (h *handler) FindAvailable(ctx context.Context, req *pb.Specification, res 
         return err
     }
 
+    log.Println("vessel find available")
+
     res.Vessel = vessel
     return nil
 }
-
-type service struct {
-    repo Repository
-}
-
-// FindAvailable 实现服务端
-//func (s *service) FindAvailable(ctx context.Context, spec *pb.Specification, resp *pb.Response) error {
-//    // 调用内部方法查找
-//    v, err := s.repo.FindAvailable(spec)
-//    if err != nil {
-//        return err
-//    }
-//    resp.Vessel = v
-//    return nil
-//}

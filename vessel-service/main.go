@@ -2,12 +2,15 @@ package main
 
 import (
     "github.com/micro/go-micro/v2"
+    _ "github.com/micro/go-micro/v2/registry/etcd"
+    _ "github.com/micro/go-plugins/broker/nsq/v2"
     "log"
     "os"
     pb "shippy/vessel-service/proto/vessel"
 )
 
-const DEFAULT_HOST = "localhost:27017"
+//const DEFAULT_HOST = "172.21.0.1:27017"     // docker MongoDB
+const DEFAULT_HOST = "127.0.0.1:27017"		// 本地 MongoDB
 
 func createDummyData(repo Repository)  {
     defer repo.Close()
@@ -45,9 +48,9 @@ func main()  {
     createDummyData(repo)
 
     server := micro.NewService(
-            micro.Name("go.micro.srv.vessel"),
-            micro.Version("latest"),
-        )
+        micro.Name("go.micro.srv.vessel"),
+        micro.Version("latest"),
+    )
     server.Init()
 
     pb.RegisterVesselServiceHandler(server.Server(), &handler{session})
